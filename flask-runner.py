@@ -1,5 +1,5 @@
 from flask import Flask
-from lib.index import LogFactory
+from motifer.index import LogFactory
 
 
 app = Flask(__name__)
