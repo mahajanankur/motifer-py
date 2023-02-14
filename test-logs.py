@@ -1,7 +1,8 @@
 # import logging
 import os
 import sys
-from lib import LogFactory
+from motifer import LogFactory
+from testlogs2 import innerFunction
 
 # logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-4.5s]  %(message)s")
 # rootLogger = logging.getLogger()
@@ -37,6 +38,7 @@ def main():
     logger.warning("Warning message")
     logger.error("Error message")
     logger.critical("Critical message")
+    innerFunction()
 
 # Call main function
 if (__name__ == "__main__"):
