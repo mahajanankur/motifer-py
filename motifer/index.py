@@ -1,4 +1,5 @@
-import sys, logging, json
+import sys, logging, json, uuid
+from flask import g
 from motifer.formatters import LogFormatter
 from motifer.filters import RequestIdFilter
 
@@ -16,10 +17,9 @@ class LogFactory:
 
     def __init__(self, service, log_level, server, **options):
         # options = json.loads(json.dumps(props))
-        self.service = service
+        self.service = service or "service-name"
         self.log_level = log_level.upper()
         self.options = options
-        self.server = server
         self.console_log_output = options.get('console_log_output').lower() if (options is not None and options.get('console_log_output') is not None) else 'stdout'
         # self.console_log_color = True if (options is not None and options.get('console_log_color') is not None) else False
         self.logfile_file = options.get('logfile_file') if (options is not None and options.get('logfile_file') is not None) else None
@@ -28,6 +28,14 @@ class LogFactory:
         # Change log level labels in all the formatters
         logging.addLevelName(logging.WARNING, "WARN")
         # logging.addLevelName(logging.CRITICAL, "CRIT")
+        if(server is not None):
+            self.server = server
+            @server.before_request
+            def before_request():
+                # g.request_id = request.headers.get('X-Request-Id', str(uuid.uuid4())
+                randUid = str(uuid.uuid4())
+                print("Random UID generated before request", randUid)
+                g.request_id = randUid
 
 
     # Get logger factory.
@@ -85,9 +93,10 @@ class LogFactory:
             logfile_handler.setFormatter(logfile_formatter)
             logger.addHandler(logfile_handler)
         # If server object is not null.
-        # if(self.server is not None):
-        #     apServer = self.server
-            
+        if(self.server is not None):
+            # appServer = self.server
+            handler = logging.StreamHandler(sys.stdout)
+            logger.addHandler(handler)
         #     @apServer.before_request
         #     def before_request():
         #         print('before req')
