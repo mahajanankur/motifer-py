@@ -1,36 +1,23 @@
 # Motifer
 
-[![Version npm](https://img.shields.io/npm/v/motifer.svg?style=flat-square)](https://www.npmjs.com/package/motifer)
-
-[![NPM](https://nodei.co/npm/motifer.png?downloads=true&downloadRank=true)](https://nodei.co/npm/motifer/)
-
-Motifer is a generic logs pattern builder on top of Winston. It covers multiple usecases as follows.
+Motifer is a generic logs pattern builder on top of Python logging. It covers multiple usecases as follows.
 
   - Log pattern validation.
   - Consistent log pattern across the application.
   - Logstash and Cloudtrail support.
   - Request and response logging with a **unique request id** for a request flow.
 
-### Overview
-
-Motifer uses a number of open source projects to work properly:
-
-* [Winston](https://github.com/winstonjs/winston)
-* [Morgan](https://github.com/expressjs/morgan)
-
-And of course Motifer itself is open source with a public [repository](https://github.com/mahajanankur/motifer) on GitHub.
-
 ### Installation
 
-Motifer requires [Node.js](https://nodejs.org/) to run.
+Motifer requires [Python](https://www.python.org/) to run.
 
 Install the dependencies and devDependencies and start the server.
 
 ```sh
-$ npm i motifer
+$ pip3 install motifer
 ```
 ## Usage
-The recommended way to use `motifer` is to create a logger. The simplest way to do this is using `LoggerFactory` or `ExpressLoggerFactory`.
+The recommended way to use `motifer` is to create a logger. The simplest way to do this is using `LoggerFactory`.
 ### LoggerFactory
 Initialize the `LoggerFactory` object once and use it in different js files.
 ``` js

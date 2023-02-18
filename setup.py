@@ -3,8 +3,7 @@
 from setuptools import find_packages, setup
 
 requires = [
-    'requests==2.23.0', 
-    'schema==0.7.4'
+    'Flask==2.2.2'
 ]
 
 setup(

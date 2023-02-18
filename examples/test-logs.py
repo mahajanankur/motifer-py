@@ -1,8 +1,8 @@
 # import logging
 import os
 import sys
-from motifer import LogFactory
-from testlogs2 import innerFunction
+from motifer.index import LogFactory
+from innerlayer import innerFunction
 
 # logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-4.5s]  %(message)s")
 # rootLogger = logging.getLogger()

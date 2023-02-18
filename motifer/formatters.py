@@ -25,7 +25,3 @@ class LogFormatter(logging.Formatter):
             record.color_on  = ""
             record.color_off = ""
         return super(LogFormatter, self).format(record, *args, **kwargs)
-
-    # def console_appenders(self, color):
-    #     fmt = '%(color_on)s[%(created)d] [%(threadName)s] [%(levelname)-8s] %(message)s%(color_off)s'
-    #     console_formatter = LogFormatter(fmt, color)

@@ -1,7 +1,8 @@
-import sys, logging, json, uuid
-from flask import g
+import sys, logging, json, uuid, time
+from flask import g, request
 from motifer.formatters import LogFormatter
 from motifer.filters import RequestIdFilter
+# logger = None
 
 class LogFactory:
     service = None
@@ -16,7 +17,6 @@ class LogFactory:
     log_line_template = '%(color_on)s[%(asctime)s] [%(service)s] [%(request_id)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s'
 
     def __init__(self, service, log_level, server, **options):
-        # options = json.loads(json.dumps(props))
         self.service = service or "service-name"
         self.log_level = log_level.upper()
         self.options = options
@@ -28,28 +28,34 @@ class LogFactory:
         # Change log level labels in all the formatters
         logging.addLevelName(logging.WARNING, "WARN")
         # logging.addLevelName(logging.CRITICAL, "CRIT")
+        logger = logging.getLogger(self.service)
         if(server is not None):
             self.server = server
             @server.before_request
             def before_request():
-                # g.request_id = request.headers.get('X-Request-Id', str(uuid.uuid4())
-                randUid = str(uuid.uuid4())
-                print("Random UID generated before request", randUid)
-                g.request_id = randUid
+                g.start = time.time()
+                randomUid = str(uuid.uuid4())
+                logger.info("Random UID generated before request {0}".format(randomUid))
+                g.request_id = randomUid
 
+            @server.after_request
+            def after_request(response):
+                responseTime = int((time.time() - g.start) * 1000)
+                # TIMESTAMP_ISO [response] [REQUEST_ID] [APP_NAME] [LOG_LEVEL] [REQUEST_METHOD] [REQUEST_IP] [API_PATH] [RESPONSE_STATUS] [CONTENT_LENGTH] [RESPONSE_TIME] [USER_AGENT]
+                logger.info("[response] [{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.content_length, RESPONSE_TIME=responseTime, USER_AGENT=request.user_agent))
+                return response
 
     # Get logger factory.
     def get_logger(self):
         # Create logger
-        # For simplicity, we use the root logger, i.e. call 'logging.getLogger()'
-        # without name argument. This way we can simply use module methods for
-        # for logging throughout the script. An alternative would be exporting
-        # the logger, i.e. 'global logger; logger = logging.getLogger("<name>")'
-        logger = logging.getLogger()
-
+        logger = logging.getLogger(self.service)
+        # stop propagting to root logger
+        logger.propagate = False
         # Set global log level to 'debug' (required for handler levels to work)
         logger.setLevel(logging.DEBUG)
-
+        # https://stackoverflow.com/questions/30945460/formatting-flask-app-logs-in-json 
+        logging.getLogger('gunicorn').propagate = False
+        logging.getLogger('werkzeug').disabled = True
         # Create console handler
         if (self.console_log_output == "stdout"):
             self.console_log_output = sys.stdout
@@ -59,7 +65,6 @@ class LogFactory:
             print("Failed to set console output: invalid output: '%s'" % self.console_log_output)
             return False
         console_handler = logging.StreamHandler(self.console_log_output)
-
         # Set console log level
         try:
             console_handler.setLevel(self.log_level) # only accepts uppercase level names
@@ -80,36 +85,14 @@ class LogFactory:
             except Exception as exception:
                 print("Failed to set up log file: %s" % str(exception))
                 return False
-
             # Set log file log level
             try:
                 logfile_handler.setLevel(self.logfile_log_level) # only accepts uppercase level names
             except:
                 print("Failed to set log file log level: invalid level: '%s'" % self.logfile_log_level)
                 return False
-
             # Create and set formatter, add log file handler to logger
             logfile_formatter = LogFormatter(fmt=self.log_line_template, color=self.logfile_log_color)
             logfile_handler.setFormatter(logfile_formatter)
             logger.addHandler(logfile_handler)
-        # If server object is not null.
-        if(self.server is not None):
-            # appServer = self.server
-            handler = logging.StreamHandler(sys.stdout)
-            logger.addHandler(handler)
-        #     @apServer.before_request
-        #     def before_request():
-        #         print('before req')
-            
-        #     @apServer.after_request
-        #     def after_request(response):
-        #         print('after response')
-        #         return response
-        #     return
-        # Add custom variables
-
-        # customField = {'service': self.service}
-        # logger = logging.LoggerAdapter(logger, customField)
-        
-        
         return logger
