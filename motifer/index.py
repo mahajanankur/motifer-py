@@ -33,16 +33,16 @@ class LogFactory:
             self.server = server
             @server.before_request
             def before_request():
-                g.start = time.time()
-                randomUid = str(uuid.uuid4())
-                logger.info("Random UID generated before request {0}".format(randomUid))
-                g.request_id = randomUid
+                g.start_time = time.time()
+                g.request_id = str(uuid.uuid4())
+                # TIMESTAMP_ISO [request] [REQUEST_ID] [APP_NAME] [LOG_LEVEL] [REQUEST_METHOD] [REQUEST_IP] [API_PATH] [BODY]
+                logger.info("[request] [{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request.form))
 
             @server.after_request
             def after_request(response):
-                responseTime = int((time.time() - g.start) * 1000)
+                response_time = int((time.time() - g.start_time) * 1000)
                 # TIMESTAMP_ISO [response] [REQUEST_ID] [APP_NAME] [LOG_LEVEL] [REQUEST_METHOD] [REQUEST_IP] [API_PATH] [RESPONSE_STATUS] [CONTENT_LENGTH] [RESPONSE_TIME] [USER_AGENT]
-                logger.info("[response] [{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.content_length, RESPONSE_TIME=responseTime, USER_AGENT=request.user_agent))
+                logger.info("[response] [{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.content_length, RESPONSE_TIME=response_time, USER_AGENT=request.user_agent))
                 return response
 
     # Get logger factory.
@@ -55,7 +55,8 @@ class LogFactory:
         logger.setLevel(logging.DEBUG)
         # https://stackoverflow.com/questions/30945460/formatting-flask-app-logs-in-json 
         logging.getLogger('gunicorn').propagate = False
-        logging.getLogger('werkzeug').disabled = True
+        # logging.getLogger('werkzeug').disabled = True
+        self.alter_werkzeug_logger()
         # Create console handler
         if (self.console_log_output == "stdout"):
             self.console_log_output = sys.stdout
@@ -96,3 +97,18 @@ class LogFactory:
             logfile_handler.setFormatter(logfile_formatter)
             logger.addHandler(logfile_handler)
         return logger
+
+    def alter_werkzeug_logger(self):
+        werkzeug = logging.getLogger('werkzeug')
+        werkzeug.setLevel(logging.ERROR)
+        # logging.getLogger('werkzeug').disabled = True
+        console_handler = logging.StreamHandler(self.console_log_output)
+        requestFilters = RequestIdFilter(server= self.server, service= self.service)
+        werkzeug.addFilter(requestFilters)
+        # Create and set formatter, add console handler to logger
+        console_formatter = LogFormatter(fmt=self.log_line_template, color=self.console_log_color)
+        console_handler.setFormatter(console_formatter)
+        werkzeug.addHandler(console_handler)
+        # if len(werkzeug.handlers) == 1:
+        #     formatter = logging.Formatter(self.log_line_template)
+        #     werkzeug.handlers[0].setFormatter(formatter)

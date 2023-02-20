@@ -20,5 +20,5 @@ class RequestIdFilter(logging.Filter):
         # record.request_id = request_id(self.flaskApp) if (self.flaskApp is not None and self.flaskApp.has_request_context()) else ''
         record.request_id = request_id() if (self.flaskApp is not None) else '-'
         # record.request_id = request_id() if (self.service is not None) else '00000000-0000-0000-0000-000000000000'
-        record.service = self.service if self.service is not None else ''
+        record.service = self.service if self.service is not None else 'motifer'
         return super(RequestIdFilter, self).filter(record, *args, **kwargs)
