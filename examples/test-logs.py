@@ -1,4 +1,4 @@
-import os
+# No need to add sys in real implementations.
 import sys
 sys.path.append('../')
 from motifer import LogFactory
@@ -6,8 +6,7 @@ from innerlayer import innerFunction
 
 def main():
     # Setup logging
-    # factory = LogFactory(service="chatbot", log_level="debug", server= None, console_log_output="stdout", logfile_file="motifer.log")
-    factory = LogFactory(service="chatbot", log_level="debug", server= None, console_log_output="stdout")
+    factory = LogFactory(service="appname", log_level="debug", server= None, console_log_output="stdout")
     logger = factory.initialize()
     if (not logger):
         print("Failed to setup logging, aborting.")
@@ -19,6 +18,11 @@ def main():
     logger.warning("Warning message")
     logger.error("Error message")
     logger.critical("Critical message")
+    try:
+        raise Exception("This is some exception")
+    except Exception as e:
+        logger.exception(e)
+
     innerFunction()
 
 # Call main function

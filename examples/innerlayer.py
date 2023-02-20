@@ -1,5 +1,6 @@
 import logging
-logger = logging.getLogger("chatbot")
+# Get logger with the service you defined in the logger facory.
+logger = logging.getLogger("appname")
 
 # Main function
 def innerFunction():

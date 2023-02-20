@@ -14,7 +14,7 @@ class FlaskLogFactory:
     logfile_file = None
     logfile_log_level = logging.INFO
     logfile_log_color = True
-    log_line_template = '%(color_on)s[%(asctime)s] [%(service)s] [%(request_id)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s'
+    log_line_template = '%(color_on)s%(asctime)s [%(service)s] [%(request_id)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s'
     # logger = None
 
     def __init__(self, service, log_level, server, **options):
