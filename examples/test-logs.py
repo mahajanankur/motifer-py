@@ -1,7 +1,7 @@
 # import logging
 import os
 import sys
-from motifer.index import LogFactory
+from motifer import LogFactory
 from innerlayer import innerFunction
 
 # logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-4.5s]  %(message)s")
@@ -24,16 +24,16 @@ from innerlayer import innerFunction
 # Main function
 def main():
     # Setup logging
-    script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
+    # script_name = os.path.splitext(os.path.basename(sys.argv[0]))[0]
     # factory = LogFactory(app=""console_log_output="stdout", console_log_level="warning", console_log_color=True, logfile_file=script_name + ".log", logfile_log_level="debug", logfile_log_color=False)
     factory = LogFactory(service="chatbot", log_level="debug", server= None, console_log_output="stdout", logfile_file="ankur.log")
-    logger = factory.get_logger()
+    logger = factory.initialize()
     if (not logger):
         print("Failed to setup logging, aborting.")
         return 1
 
     # Log some messages
-    logger.debug("Debug message")
+    logger.debug("Debug message {str}".format(str = __name__))
     logger.info("Info message")
     logger.warning("Warning message")
     logger.error("Error message")

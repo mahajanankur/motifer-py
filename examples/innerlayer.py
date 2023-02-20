@@ -1,9 +1,10 @@
-# import logging
 import logging
+logger = logging.getLogger("chatbot")
+# from motifer import FlaskLogFactory
+# logger = FlaskLogFactory.get_initialized_logger()
 
 # Main function
 def innerFunction():
-    logger = logging.getLogger()
     if (not logger):
         print("Failed to setup logging, aborting.")
         return 1

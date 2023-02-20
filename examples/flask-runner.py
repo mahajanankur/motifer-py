@@ -1,11 +1,11 @@
 from flask import Flask, g, request
 import uuid
-from motifer.index import LogFactory
+from motifer import FlaskLogFactory
 
 
 app = Flask(__name__)
-factory = LogFactory(service="chatbot", log_level="debug", server=app)
-logger = factory.get_logger()
+factory = FlaskLogFactory(service="chatbot", log_level="debug", server=app)
+logger = factory.initialize()
 
 def calculate():
     logger.error("Some error occured")

@@ -5,4 +5,5 @@ __version__ = "1.0.0"
 __maintainer__ = "Ankur Mahajan"
 __email__ = "mahajanankur.nith@gmail.com"
 
-from motifer.index import LogFactory
+from motifer.logger_factory import LogFactory
+from motifer.flask_factory import FlaskLogFactory

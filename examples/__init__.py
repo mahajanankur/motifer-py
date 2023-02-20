@@ -1,0 +1,2 @@
+from motifer.logger_factory import LogFactory
+from motifer.flask_factory import FlaskLogFactory
