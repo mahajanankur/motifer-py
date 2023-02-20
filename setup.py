@@ -9,7 +9,7 @@ requires = [
 setup(
     include_package_data=True,
     name="motifer",
-    version='0.0.1',
+    version='0.0.2',
     description='Generic logs pattern builder for Python and Flask, built on top of logging module.',
     long_description_content_type='text/markdown',
     long_description=open('README.md').read(),
@@ -28,7 +28,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
