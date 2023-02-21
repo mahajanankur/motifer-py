@@ -1,12 +1,13 @@
 # No need to add sys in real implementations.
 import sys
 sys.path.append('../')
+import logging
 from motifer import LogFactory
 from innerlayer import innerFunction
 
 def main():
     # Setup logging
-    factory = LogFactory(service="appname", log_level="debug", server= None, console_log_output="stdout")
+    factory = LogFactory(service="appname", log_level=logging.DEBUG)
     logger = factory.initialize()
     if (not logger):
         print("Failed to setup logging, aborting.")

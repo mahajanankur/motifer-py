@@ -14,12 +14,13 @@ class FlaskLogFactory:
     logfile_file = None
     logfile_log_level = logging.INFO
     logfile_log_color = True
-    log_line_template = '%(color_on)s%(asctime)s [%(service)s] [%(request_id)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s'
+    log_line_template = '%(color_on)s%(asctime)s [%(log_type)s] [%(request_id)s] [%(service)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s'
     # logger = None
 
     def __init__(self, service, log_level, server, **options):
         self.service = service or "service-name"
-        self.log_level = log_level.upper()
+        # self.log_level = log_level.upper()
+        self.log_level = log_level if(log_level is not None and type(log_level) is int) else logging.INFO
         self.options = options
         self.console_log_output = options.get('console_log_output').lower() if (options is not None and options.get('console_log_output') is not None) else 'stdout'
         # self.console_log_color = True if (options is not None and options.get('console_log_color') is not None) else False
@@ -33,17 +34,16 @@ class FlaskLogFactory:
         if(server is not None):
             self.server = server
             @server.before_request
-            def before_request():
+            def __motifer_before_request__():
                 g.start_time = time.time()
                 g.request_id = str(uuid.uuid4())
-                # TIMESTAMP_ISO [request] [REQUEST_ID] [APP_NAME] [LOG_LEVEL] [REQUEST_METHOD] [REQUEST_IP] [API_PATH] [BODY]
-                self.logger.info("[request] [{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request.form))
+                request_body = request.json or {}
+                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request_body))
 
             @server.after_request
-            def after_request(response):
+            def __motifer_after_request__(response):
                 response_time = int((time.time() - g.start_time) * 1000)
-                # TIMESTAMP_ISO [response] [REQUEST_ID] [APP_NAME] [LOG_LEVEL] [REQUEST_METHOD] [REQUEST_IP] [API_PATH] [RESPONSE_STATUS] [CONTENT_LENGTH] [RESPONSE_TIME] [USER_AGENT]
-                self.logger.info("[response] [{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.content_length, RESPONSE_TIME=response_time, USER_AGENT=request.user_agent))
+                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.content_length, RESPONSE_TIME=response_time, USER_AGENT=request.user_agent))
                 return response
 
     # Get logger factory.

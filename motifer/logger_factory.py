@@ -15,7 +15,8 @@ class LogFactory:
 
     def __init__(self, service, log_level, **options):
         self.service = service or "service-name"
-        self.log_level = log_level.upper()
+        # self.log_level = log_level.upper()
+        self.log_level = log_level if(log_level is not None and type(log_level) is int) else logging.INFO
         self.options = options
         self.console_log_output = options.get('console_log_output').lower() if (options is not None and options.get('console_log_output') is not None) else 'stdout'
         # self.console_log_color = True if (options is not None and options.get('console_log_color') is not None) else False
