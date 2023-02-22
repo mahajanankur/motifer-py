@@ -1,4 +1,8 @@
 # Motifer
+[![PyPI](https://img.shields.io/pypi/v/motifer?logo=PyPI)](https://badge.fury.io/py/motifer)
+![PyPI - Status](https://img.shields.io/pypi/status/motifer?logo=PyPI)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/motifer?logo=PyPI)
+[![License](https://img.shields.io/badge/code%20license-Apache%20License%2C%202.0-lightgrey?logo=GitHub)](https://github.com/mahajanankur/motifer-py/blob/main/LICENSE)
 
 Motifer is a generic logs pattern builder on top of Python logging. It covers multiple usecases as follows.
 
