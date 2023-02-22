@@ -80,11 +80,11 @@ if __name__ == '__main__':
 ```
 > Request id is of `UUID V4` type.
 ``` log
-2023-02-21 18:46:14,648 [request] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [flask_factory.py:40] [GET] [127.0.0.1] [/] [ImmutableMultiDict([])]
+2023-02-21 18:46:14,648 [request] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [flask_factory.py:40] [GET] [127.0.0.1] [/] [{'name': 'ankur', 'project': 'motifer'}]
 2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [DEBUG] [flask-runner.py:15] In the root route of sample app.
 2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [ERROR] [flask-runner.py:10] Some error occured
 2023-02-21 18:46:14,649 [response] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [flask_factory.py:46] [GET] [127.0.0.1] [/] [200] [18] [1] [PostmanRuntime/7.29.2]
-2023-02-21 18:46:16,339 [request] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [flask_factory.py:40] [GET] [127.0.0.1] [/] [ImmutableMultiDict([])]
+2023-02-21 18:46:16,339 [request] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [flask_factory.py:40] [GET] [127.0.0.1] [/] [{'name': 'xyz', 'project': 'motifer'}]
 2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [DEBUG] [flask-runner.py:15] In the root route of sample app.
 2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [ERROR] [flask-runner.py:10] Some error occured
 2023-02-21 18:46:16,340 [response] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [flask_factory.py:46] [GET] [127.0.0.1] [/] [200] [18] [1] [PostmanRuntime/7.29.2]
