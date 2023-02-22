@@ -17,15 +17,20 @@ Install the dependencies and devDependencies and start the server.
 $ pip3 install motifer
 ```
 ## Usage
-The recommended way to use `motifer` is to create a logger. The simplest way to do this is using `LoggerFactory`.
+The recommended way to use `motifer` is to create a logger. The simplest way to do this is using `LoggerFactory`. Please look in the example folder for further information.
+
 ### LoggerFactory
 Initialize the `LoggerFactory` object once and use it in different Python files.
 ``` python
+import logging
 from motifer import LogFactory
 
-factory = LogFactory(service="appname", log_level="debug")
+factory = LogFactory(service="appname", log_level=logging.DEBUG)
 logger = factory.initialize()
+
 logger.debug("Debug message")
+logger.info("Info message")
+logger.error("Error message")
 ```
 All log levels supported by [Python logging](https://docs.python.org/3/library/logging.html#logging-levels) are supported.
 
@@ -48,14 +53,16 @@ Exception: This is some exception
 ```
 ---
 ### FlaskLogFactory
-Initialize the `FlaskLogFactory` object once with flask server object and use it in different routes.
+Initialize the `FlaskLogFactory` object once with flask server object and use it in different routes. Please look in the example folder for further information.
+
 ##### index.py / app.py
 ``` python
+import logging
 from flask import Flask
 from motifer import FlaskLogFactory
 
 app = Flask(__name__)
-factory = FlaskLogFactory(service="webappname", log_level="debug", server=app)
+factory = FlaskLogFactory(service="webappname", log_level=logging.DEBUG, server=app)
 logger = factory.initialize()
 
 def calculate():
