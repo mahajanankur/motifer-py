@@ -4,7 +4,7 @@ from flask import g, request
 
 # Returns the current request ID or a new one if there is none
 def request_id():
-    if getattr(g, 'request_id', None):
+    if getattr(g, 'request_id', "-"):
         return g.request_id
     return uuid.uuid4()
 

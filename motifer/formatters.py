@@ -7,8 +7,8 @@ class LogFormatter(logging.Formatter):
         logging.CRITICAL: "\033[1;35m", # bright/bold magenta
         logging.ERROR:    "\033[1;31m", # bright/bold red
         logging.WARNING:  "\033[1;33m", # bright/bold yellow
-        logging.INFO:     "\033[0;37m", # white / light gray
-        logging.DEBUG:    "\033[1;30m"  # bright/bold black / dark gray
+        logging.INFO:     "\033[1;32m", # bright/bold green
+        logging.DEBUG:    "\033[1;34m"  # bright/bold blue
     }
 
     RESET_CODE = "\033[0m"

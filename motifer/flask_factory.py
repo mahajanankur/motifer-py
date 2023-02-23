@@ -2,6 +2,7 @@ import sys, logging, json, uuid, time
 from flask import g, request
 from motifer.formatters import LogFormatter
 from motifer.filters import RequestIdFilter
+from motifer.server_filters import ServerLogFilter
 # logger = None
 
 class FlaskLogFactory:
@@ -37,7 +38,7 @@ class FlaskLogFactory:
             def __motifer_before_request__():
                 g.start_time = time.time()
                 g.request_id = str(uuid.uuid4())
-                request_body = request.json or {}
+                request_body = request.json if(request is not None and request.is_json == True) else {}
                 self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request_body))
 
             @server.after_request
@@ -56,8 +57,9 @@ class FlaskLogFactory:
         logger.setLevel(logging.DEBUG)
         # https://stackoverflow.com/questions/30945460/formatting-flask-app-logs-in-json 
         logging.getLogger('gunicorn').propagate = False
+        # logging.getLogger('gunicorn').disabled = True
         # logging.getLogger('werkzeug').disabled = True
-        self.__alter_werkzeug_logger()
+        self.__alter_logger("werkzeug", self.log_level)
         # Create console handler
         if (self.console_log_output == "stdout"):
             self.console_log_output = sys.stdout
@@ -107,17 +109,41 @@ class FlaskLogFactory:
     #     else:
     #         raise Exception("Logger factory is not initialized.")
 
-    def __alter_werkzeug_logger(self):
-        werkzeug = logging.getLogger('werkzeug')
-        werkzeug.setLevel(logging.ERROR)
+    def __alter_logger(self, name, level):
+        other_logger = logging.getLogger(name)
+        # level should be a logging dict.
+        other_logger.setLevel(level)
         # logging.getLogger('werkzeug').disabled = True
         console_handler = logging.StreamHandler(self.console_log_output)
-        requestFilters = RequestIdFilter(server= self.server, service= self.service)
-        werkzeug.addFilter(requestFilters)
+        filters = ServerLogFilter(server= self.server, service= self.service)
+        other_logger.addFilter(filters)
+        log_format = '%(asctime)s [server] [-] [%(service)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s'
         # Create and set formatter, add console handler to logger
-        console_formatter = LogFormatter(fmt=self.log_line_template, color=self.console_log_color)
+        # console_formatter = LogFormatter(fmt=log_format, color=self.console_log_color)
+        # console_formatter = LogFormatter(fmt=log_format, color=False)
+        # ToDo - Test
+        console_formatter = logging.Formatter(log_format)
         console_handler.setFormatter(console_formatter)
-        werkzeug.addHandler(console_handler)
-        # if len(werkzeug.handlers) == 1:
+        other_logger.addHandler(console_handler)
+        # if len(other_logger.handlers) == 1:
         #     formatter = logging.Formatter(self.log_line_template)
-        #     werkzeug.handlers[0].setFormatter(formatter)
+        #     other_logger.handlers[0].setFormatter(formatter)
+    
+    @staticmethod
+    def alter_any_logger(name, level, server):
+        other_logger = logging.getLogger(name)
+        # level should be a logging dict.
+        other_logger.setLevel(level)
+        # logging.getLogger('werkzeug').disabled = True
+        console_handler = logging.StreamHandler("stdout")
+        
+        requestFilters = RequestIdFilter(server= server, service= "ml-service")
+        other_logger.addFilter(requestFilters)
+        # Create and set formatter, add console handler to logger
+        console_formatter = LogFormatter(fmt='%(color_on)s%(asctime)s [%(log_type)s] [%(request_id)s] [%(service)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s', color=True)
+        console_handler.setFormatter(console_formatter)
+        other_logger.addHandler(console_handler)
+        # if len(other_logger.handlers) == 1:
+        #     formatter = logging.Formatter(self.log_line_template)
+        #     other_logger.handlers[0].setFormatter(formatter)
+        return other_logger

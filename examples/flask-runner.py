@@ -1,4 +1,5 @@
 # No need to add sys in real implementations.
+# gunicorn --capture-output --enable-stdio-inheritance -w 1 --threads 10 -b 0.0.0.0:5002 flask-runner:app --timeout 1000
 import sys
 sys.path.append('../')
 from flask import Flask, g, request
