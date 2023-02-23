@@ -1,3 +1,4 @@
+# gunicorn --capture-output --enable-stdio-inheritance -w 1 --threads 10 -b 0.0.0.0:5002 flask-runner:app --timeout 1000
 # No need to add sys in real implementations.
 import sys
 sys.path.append('../')
@@ -11,6 +12,8 @@ logger = factory.initialize()
 
 def calculate():
     logger.error("Some error occured")
+    logger.info("Some info logs")
+    logger.critical("Some critical logs.")
     # time.sleep(2)
     return 10
 

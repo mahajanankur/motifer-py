@@ -37,7 +37,7 @@ class FlaskLogFactory:
             def __motifer_before_request__():
                 g.start_time = time.time()
                 g.request_id = str(uuid.uuid4())
-                request_body = request.json or {}
+                request_body = request.json if(request is not None and request.is_json == True) else {}
                 self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request_body))
 
             @server.after_request
