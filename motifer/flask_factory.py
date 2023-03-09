@@ -37,7 +37,12 @@ class FlaskLogFactory:
             def __motifer_before_request__():
                 g.start_time = time.time()
                 g.request_id = str(uuid.uuid4())
-                request_body = request.json if(request is not None and request.is_json == True) else {}
+                try:
+                    request_body_in = request.get_json() if(request is not None and request.is_json == True) else {}
+                    request_body = json.dumps(request_body_in) if request_body_in != {} else {}
+                    # Bugfix - If the content type is application/json in GET json decode exception occurs.
+                except Exception as e:
+                    request_body = {}
                 self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request_body))
 
             @server.after_request
