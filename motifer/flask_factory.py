@@ -31,13 +31,13 @@ class FlaskLogFactory:
         logging.addLevelName(logging.WARNING, "WARN")
         # logging.addLevelName(logging.CRITICAL, "CRIT")
         self.logger = logging.getLogger(self.service)
-        if(server is not None):
+        if server:
             self.server = server
             @server.before_request
             def __motifer_before_request__():
                 g.start_time = time.time()
                 g.request_id = str(uuid.uuid4())
-                try:
+                try: 
                     request_body_in = request.get_json() if(request is not None and request.is_json == True) else {}
                     request_body = json.dumps(request_body_in) if request_body_in != {} else {}
                     # Bugfix - If the content type is application/json in GET json decode exception occurs.
@@ -55,6 +55,9 @@ class FlaskLogFactory:
     def initialize(self):
         # Create logger
         logger = logging.getLogger(self.service)
+        # Bugfix - Multiple filters registered with multiple objects.
+        if(logger.filters.__len__() == 1):
+            return logger
         # stop propagting to root logger
         logger.propagate = False
         # Set global log level to 'debug' (required for handler levels to work)

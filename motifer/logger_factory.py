@@ -32,6 +32,9 @@ class LogFactory:
     def initialize(self):
         # Create logger
         logger = logging.getLogger(self.service)
+        # Bugfix - Multiple filters registered with multiple objects.
+        # if(logger.filters.__len__() == 1):
+        #     return logger
         # stop propagting to root logger
         logger.propagate = False
         # Set global log level to 'debug' (required for handler levels to work)
