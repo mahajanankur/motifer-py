@@ -58,7 +58,7 @@ Exception: This is some exception
 ```
 ---
 ### FlaskLogFactory
-Initialize the `FlaskLogFactory` object once with flask server object and use it in different routes. Please look in the example folder for further information.
+Initialize the `FlaskLogFactory` object once with flask server object and use it in different routes. Motifer supports `Flask version >= 2.0.1`.Please look in the example folder for further information.
 
 ##### index.py / app.py
 ``` python
