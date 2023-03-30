@@ -1,0 +1,40 @@
+import uuid
+import logging, contextvars
+from fastapi import Request
+
+# Returns the current request ID or a new one if there is none
+# def request_id(request: Request):
+def request_id():
+    request_id_contextvar = contextvars.ContextVar("request_id", default=None)
+    request_id = request_id_contextvar.get()
+    # request_id = request.state.get("request_id", None)
+    if request_id:
+        return request_id
+    return uuid.uuid4()
+
+def get_log_type(record):
+    func_name = record.funcName
+    if func_name == "__motifer_before_request__":
+        log_type = "request"
+    elif func_name == "__motifer_after_request__":
+        log_type = "response"
+    else:
+        log_type = "service"
+    return log_type
+
+class FastRequestIdFilter(logging.Filter):
+
+    def __init__(self, server, service, *args, **kwargs):
+        super(FastRequestIdFilter, self).__init__(*args, **kwargs)
+        self.fastApp = server
+        self.service = service
+
+    # This is a logging filter that makes the request ID available for use in the logging format.
+    def filter(self, record, *args, **kwargs):
+        # record.request_id = request_id(self.flaskApp) if (self.flaskApp is not None and self.flaskApp.has_request_context()) else ''
+        record.request_id = request_id() if (self.fastApp is not None) else '-'
+        # record.request_id = request_id() if (self.service is not None) else '00000000-0000-0000-0000-000000000000'
+        record.service = self.service if self.service is not None else 'motifer'
+        record.log_type = get_log_type(record)
+        return super(FastRequestIdFilter, self).filter(record, *args, **kwargs)
+

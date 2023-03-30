@@ -1,2 +1,5 @@
 # Flask===2.2.2
 Flask>=2.0.1
+fastapi===0.95.0
+uvicorn===0.21.1
+contextvars===2.4
