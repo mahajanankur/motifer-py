@@ -1,4 +1,4 @@
-# uvicorn fast-api-runner:app --reload
+# uvicorn fast-api-runner:app --log-config gunicorn_log.conf --reload
 # uvicorn fast-api-runner:app --log-level critical --reload
 import sys
 sys.path.append('../')

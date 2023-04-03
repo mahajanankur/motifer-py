@@ -12,11 +12,7 @@ def request_id(context):
 
 def get_log_type(record):
     func_name = record.funcName
-    if func_name == "__motifer_before_request__":
-        log_type = "request"
-    elif func_name == "__motifer_after_request__":
-        log_type = "response"
-    else:
+    if func_name != "__motifer_middleware__":
         log_type = "service"
     return log_type
 
@@ -34,6 +30,9 @@ class FastRequestIdFilter(logging.Filter):
         record.request_id = request_id(self.context) if (self.fastApp is not None) else '-'
         # record.request_id = request_id() if (self.service is not None) else '00000000-0000-0000-0000-000000000000'
         record.service = self.service if self.service is not None else 'motifer'
-        record.log_type = get_log_type(record)
+        func_name = record.funcName
+        if func_name != "__motifer_middleware__":
+            record.log_type = "service"
+        # record.log_type = get_log_type(record)
         return super(FastRequestIdFilter, self).filter(record, *args, **kwargs)
 

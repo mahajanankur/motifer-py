@@ -36,29 +36,16 @@ class FastApiLogFactory:
         if server:
             self.server = server
             # request_id_context = contextvars.ContextVar("request_id", default=None)
-
-            # @server.middleware("http")
-            # async def before_request(request: Request, call_next):
-            #     server.state.start_time = time.time()
-            #     server.state.request_id = str(uuid.uuid4())
-            #     try: 
-            #         request_body_in = request.get_json() if(request is not None and request.is_json == True) else {}
-            #         request_body = json.dumps(request_body_in) if request_body_in != {} else {}
-            #         # Bugfix - If the content type is application/json in GET json decode exception occurs.
-            #     except Exception as e:
-            #         request_body = {}
-            #     self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request_body))
-            #     return call_next(request)
-
+            # Add request ID filter to the logger
             @server.middleware("http")
-            async def after_request(request: Request, call_next):
+            async def __motifer_middleware__(request: Request, call_next):
                 request_id_context.set(str(uuid.uuid4()))
                 start_time = time.time()
                 # request.state.request_id = str(uuid.uuid4())
-                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, BODY={}))
+                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, BODY={}), extra={'log_type': 'request'})
                 response_time = int((time.time() - start_time) * 1000)
                 response = await call_next(request)
-                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.headers["content-length"], RESPONSE_TIME=response_time, USER_AGENT=request.headers["user-agent"]))
+                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.headers["content-length"], RESPONSE_TIME=response_time, USER_AGENT=request.headers["user-agent"]), extra={'log_type': 'response'})
                 return response
 
     # Get logger factory.
@@ -74,8 +61,11 @@ class FastApiLogFactory:
         logger.setLevel(logging.DEBUG)
         # https://stackoverflow.com/questions/30945460/formatting-flask-app-logs-in-json 
         logging.getLogger('gunicorn').propagate = False
+        logging.getLogger('uvicorn').propagate = False
         # logging.getLogger('werkzeug').disabled = True
-        self.__alter_werkzeug_logger()
+        # logging.getLogger("uvicorn.error").disabled = True
+        # logging.getLogger("uvicorn.access").disabled = True
+        # self.__alter_uvicorn_logger()
         # Create console handler
         if (self.console_log_output == "stdout"):
             self.console_log_output = sys.stdout
@@ -116,26 +106,29 @@ class FastApiLogFactory:
             logfile_handler.setFormatter(logfile_formatter)
             logger.addHandler(logfile_handler)
         return logger
-    
-    # @staticmethod
-    # def get_initialized_logger():
-    #     logger = logging.getLogger(FlaskLogFactory.service)
-    #     if(logger is not None):
-    #         return logger
-    #     else:
-    #         raise Exception("Logger factory is not initialized.")
 
-    def __alter_werkzeug_logger(self):
-        werkzeug = logging.getLogger('werkzeug')
-        werkzeug.setLevel(logging.ERROR)
-        # logging.getLogger('werkzeug').disabled = True
-        console_handler = logging.StreamHandler(self.console_log_output)
-        requestFilters = FastRequestIdFilter(server= self.server, service= self.service, context= request_id_context)
-        werkzeug.addFilter(requestFilters)
-        # Create and set formatter, add console handler to logger
-        console_formatter = LogFormatter(fmt=self.log_line_template, color=self.console_log_color)
-        console_handler.setFormatter(console_formatter)
-        werkzeug.addHandler(console_handler)
-        # if len(werkzeug.handlers) == 1:
-        #     formatter = logging.Formatter(self.log_line_template)
-        #     werkzeug.handlers[0].setFormatter(formatter)
+    def __alter_uvicorn_logger(self):
+        # logging.getLogger("uvicorn.error").disabled = True
+        # logging.getLogger("uvicorn.access").disabled = True
+        # logger_dic = logging.getLogger('uvicorn').manager.loggerDict
+        uvicorn_root = logging.getLogger('uvicorn')
+        uvicorn_error = logging.getLogger('uvicorn.error')
+        uvicorn_access = logging.getLogger('uvicorn.access')
+        # logger_arr = [uvicorn_root, uvicorn_error, uvicorn_access]
+        logger_arr = ['uvicorn', 'uvicorn.error', 'uvicorn.access', 'fastapi']
+        for name in logger_arr:
+        # for name in logger_dic:
+            print(f"{name}")
+            logging.getLogger(name).setLevel(logging.DEBUG)
+            # logging.getLogger('logger').disabled = True
+            console_handler = logging.StreamHandler(self.console_log_output)
+            requestFilters = FastRequestIdFilter(server= self.server, service= self.service)
+            # logger.addFilter(requestFilters)
+            logging.getLogger(name).addFilter(requestFilters)
+            # Create and set formatter, add console handler to logger
+            console_formatter = LogFormatter(fmt=self.log_line_template, color=self.console_log_color)
+            console_handler.setFormatter(console_formatter)
+            logging.getLogger(name).addHandler(console_handler)
+            # if len(logger.handlers) == 1:
+            #     formatter = logging.Formatter(self.log_line_template)
+            #     logger.handlers[0].setFormatter(formatter)
