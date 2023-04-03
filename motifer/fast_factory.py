@@ -3,6 +3,7 @@ import sys, logging, json, uuid, time, contextvars
 from fastapi import Request
 from motifer.formatters import LogFormatter
 from motifer.fast_filters import FastRequestIdFilter
+request_id_context = contextvars.ContextVar("request_id", default=None)
 # logger = None
 
 class FastApiLogFactory:
@@ -17,7 +18,7 @@ class FastApiLogFactory:
     logfile_log_color = True
     log_line_template = '%(color_on)s%(asctime)s [%(log_type)s] [%(request_id)s] [%(service)s] [%(levelname)-4s] [%(filename)s:%(lineno)d] %(message)s%(color_off)s'
     # logger = None
-
+    
     def __init__(self, service, log_level, server, **options):
         self.service = service or "service-name"
         # self.log_level = log_level.upper()
@@ -34,7 +35,7 @@ class FastApiLogFactory:
         self.logger = logging.getLogger(self.service)
         if server:
             self.server = server
-            request_id_contextvar = contextvars.ContextVar("request_id", default=None)
+            # request_id_context = contextvars.ContextVar("request_id", default=None)
 
             # @server.middleware("http")
             # async def before_request(request: Request, call_next):
@@ -51,7 +52,7 @@ class FastApiLogFactory:
 
             @server.middleware("http")
             async def after_request(request: Request, call_next):
-                request_id_contextvar.set(str(uuid.uuid4()))
+                request_id_context.set(str(uuid.uuid4()))
                 start_time = time.time()
                 # request.state.request_id = str(uuid.uuid4())
                 self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, BODY={}))
@@ -91,7 +92,7 @@ class FastApiLogFactory:
             print("Failed to set console log level: invalid level: '%s'" % self.log_level)
             return False
             
-        requestFilters = FastRequestIdFilter(server= self.server, service= self.service)
+        requestFilters = FastRequestIdFilter(server= self.server, service= self.service, context= request_id_context)
         logger.addFilter(requestFilters)
         # Create and set formatter, add console handler to logger
         console_formatter = LogFormatter(fmt=self.log_line_template, color=self.console_log_color)
@@ -129,7 +130,7 @@ class FastApiLogFactory:
         werkzeug.setLevel(logging.ERROR)
         # logging.getLogger('werkzeug').disabled = True
         console_handler = logging.StreamHandler(self.console_log_output)
-        requestFilters = FastRequestIdFilter(server= self.server, service= self.service)
+        requestFilters = FastRequestIdFilter(server= self.server, service= self.service, context= request_id_context)
         werkzeug.addFilter(requestFilters)
         # Create and set formatter, add console handler to logger
         console_formatter = LogFormatter(fmt=self.log_line_template, color=self.console_log_color)
