@@ -3,13 +3,15 @@
 from setuptools import find_packages, setup
 
 requires = [
-    'Flask>=2.0.1'
+    'Flask>=2.0.1',
+    'fastapi>=0.95.0',
+    'contextvars>=2.4'
 ]
 
 setup(
     include_package_data=True,
     name="motifer",
-    version='1.0.5',
+    version='1.0.6',
     description='Generic logs pattern builder for Python and Flask, built on top of logging module.',
     long_description_content_type='text/markdown',
     long_description=open('README.md').read(),
