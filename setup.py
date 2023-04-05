@@ -4,14 +4,14 @@ from setuptools import find_packages, setup
 
 requires = [
     'Flask>=2.0.1',
-    'fastapi>=0.95.0',
-    'contextvars>=2.4'
+    'fastapi>=0.73.0',
+    'contextvars>=2.3'
 ]
 
 setup(
     include_package_data=True,
     name="motifer",
-    version='1.0.6',
+    version='1.1.0',
     description='Generic logs pattern builder for Python and Flask, built on top of logging module.',
     long_description_content_type='text/markdown',
     long_description=open('README.md').read(),
@@ -27,7 +27,7 @@ setup(
         'Source': 'https://github.com/mahajanankur/motifer-py',
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: Apache Software License',

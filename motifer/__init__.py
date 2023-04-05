@@ -7,4 +7,4 @@ __email__ = "mahajanankur.nith@gmail.com"
 
 from motifer.logger_factory import LogFactory
 from motifer.flask_factory import FlaskLogFactory
-from motifer.fast_factory import FastApiLogFactory
+from motifer.fast_api_factory import FastApiLogFactory

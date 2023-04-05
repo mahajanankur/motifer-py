@@ -19,7 +19,7 @@ Motifer requires [Python](https://www.python.org/) to run.
 Install the dependencies and devDependencies and start the server.
 
 ```sh
-$ pip3 install motifer
+$ pip install motifer
 ```
 ## Usage
 The recommended way to use `motifer` is to create a logger. The simplest way to do this is using `LoggerFactory`. Please look in the example folder for further information.
@@ -86,15 +86,52 @@ if __name__ == '__main__':
 > Request id is of `UUID V4` type.
 ``` log
 2023-02-21 18:46:14,648 [request] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [flask_factory.py:40] [GET] [127.0.0.1] [/] [{'name': 'ankur', 'project': 'motifer'}]
-2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [DEBUG] [flask-runner.py:15] In the root route of sample app.
-2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [ERROR] [flask-runner.py:10] Some error occured
+2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [DEBUG] [index.py:15] In the root route of sample app.
+2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [ERROR] [index.py:10] Some error occured
 2023-02-21 18:46:14,649 [response] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [flask_factory.py:46] [GET] [127.0.0.1] [/] [200] [18] [1] [PostmanRuntime/7.29.2]
 2023-02-21 18:46:16,339 [request] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [flask_factory.py:40] [GET] [127.0.0.1] [/] [{'name': 'xyz', 'project': 'motifer'}]
-2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [DEBUG] [flask-runner.py:15] In the root route of sample app.
-2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [ERROR] [flask-runner.py:10] Some error occured
+2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [DEBUG] [index.py:15] In the root route of sample app.
+2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [ERROR] [index.py:10] Some error occured
 2023-02-21 18:46:16,340 [response] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [flask_factory.py:46] [GET] [127.0.0.1] [/] [200] [18] [1] [PostmanRuntime/7.29.2]
 ```
+---
+### FastApiLogFactory
+Initialize the `FastApiLogFactory` object once with fastapi app object and use it in different routes. Motifer supports `fastapi version >= 0.73.0`.Please look in the example folder for further information.
 
+##### index.py / app.py
+``` python
+import logging, uvicorn
+from fastapi import FastAPI
+from motifer import FastApiLogFactory
+
+app = FastAPI()
+factory = FastApiLogFactory(service="webappname", log_level=logging.DEBUG, server=app)
+logger = factory.initialize()
+
+def calculate():
+    logger.error("Some error occured")
+    return 10
+
+@app.get("/")
+def health():
+    logger.debug("In the root route of sample app.")
+    calculate()
+    return {"status": "okay"}
+
+if __name__ == '__main__':
+    uvicorn.run(app=app, host="0.0.0.0", port=8000, workers=1)
+```
+> Request id is of `UUID V4` type.
+``` log
+2023-02-21 18:46:14,648 [request] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [fast_api_factory.py:45] [GET] [127.0.0.1] [/] [{'name': 'ankur', 'project': 'motifer'}]
+2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [DEBUG] [index.py:15] In the root route of sample app.
+2023-02-21 18:46:14,648 [service] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [ERROR] [index.py:10] Some error occured
+2023-02-21 18:46:14,649 [response] [af7050bd-8f6a-4507-a8e3-1a327ef92d82] [webappname] [INFO] [fast_api_factory.py:48] [GET] [127.0.0.1] [/] [200] [18] [1] [PostmanRuntime/7.29.2]
+2023-02-21 18:46:16,339 [request] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [fast_api_factory.py:45] [GET] [127.0.0.1] [/] [{'name': 'xyz', 'project': 'motifer'}]
+2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [DEBUG] [index.py:15] In the root route of sample app.
+2023-02-21 18:46:16,339 [service] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [ERROR] [index.py:10] Some error occured
+2023-02-21 18:46:16,340 [response] [e6a80807-6352-44bd-9765-c60e8b3b596a] [webappname] [INFO] [fast_api_factory.py:48] [GET] [127.0.0.1] [/] [200] [18] [1] [PostmanRuntime/7.29.2]
+```
 #### Log Patterns
 ##### Request Logs
 ``` log
@@ -130,9 +167,31 @@ The **object** has four parameter.
 | server | Flask object | Yes | NA| This is a mandatory param.|
 | options | Array of objects for file appender and rotation. | No | null| If not supplied file appender will not be attached.|
 
+### FastApiLogFactory
+
+The **object** has four parameter.
+
+| Param | Description |Mandatory |Default |Comments|
+| ------ | ------ | ------ | ------ | ------ |
+| service | Application or service name. | Yes | NA| This is a mandatory param.|
+| log_level | Log level for the application. | Yes | NA| This is a mandatory param.|
+| server | FastApi object | Yes | NA| This is a mandatory param.|
+| options | Array of objects for file appender and rotation. | No | null| If not supplied file appender will not be attached.|
+---
+## Production Usecase
+While WSGI can be useful during development and testing, it is generally not recommended for production use due to concerns related to scalability, security, performance, and configuration complexity. Instead, dedicated web servers such as Nginx or Apache should be used along with application servers like Gunicorn or Uvicorn for serving Python-based web applications in production environments.
+
+To integrate `Motifer` with the internal logs of `gunicorn` and `uvicorn`, you can add `--log-config` to the command. To do so, you should first download the appropriate configuration files (for either [gunicorn_log.conf](https://github.com/mahajanankur/motifer-py/blob/main/gunicorn_log.conf) or [uvicorn_log.conf](https://github.com/mahajanankur/motifer-py/blob/main/uvicorn_log.conf)) and add them to either the config or root directory.
+
+Gunicorn is a popular application server that is compatible with WSGI applications. To start a Gunicorn server, you can use the following command:
+```sh
+gunicorn flask-app:app --log-config gunicorn_log.conf
+```
+Uvicorn is an ASGI (Asynchronous Server Gateway Interface) server that is designed for high-performance web applications.
+```sh
+uvicorn fast-api-app:app --log-config uvicorn_log.conf
+```
 ---
 License
 ----
 **Apache 2.0**
-
-**Free Software, Hell Yeah!**

@@ -2,7 +2,7 @@ import sys, logging, json, uuid, time, contextvars
 # from flask import g, request
 from fastapi import Request
 from motifer.formatters import LogFormatter
-from motifer.fast_filters import FastRequestIdFilter
+from motifer.fast_api_filters import FastRequestIdFilter
 request_id_context = contextvars.ContextVar("request_id", default=None)
 # logger = None
 
@@ -60,9 +60,13 @@ class FastApiLogFactory:
         # Set global log level to 'debug' (required for handler levels to work)
         logger.setLevel(logging.DEBUG)
         # https://stackoverflow.com/questions/30945460/formatting-flask-app-logs-in-json 
+        # logging.getLogger('root').propagate = False
         logging.getLogger('gunicorn').propagate = False
         logging.getLogger('uvicorn').propagate = False
-        # logging.getLogger('werkzeug').disabled = True
+        logging.getLogger('fastapi').propagate = False
+        # logging.getLogger("uvicorn.error").propagate = False
+        logging.getLogger("uvicorn.access").propagate = False
+        logging.getLogger("uvicorn.access").setLevel(logging.ERROR)
         # logging.getLogger("uvicorn.error").disabled = True
         # logging.getLogger("uvicorn.access").disabled = True
         # self.__alter_uvicorn_logger()
@@ -111,9 +115,9 @@ class FastApiLogFactory:
         # logging.getLogger("uvicorn.error").disabled = True
         # logging.getLogger("uvicorn.access").disabled = True
         # logger_dic = logging.getLogger('uvicorn').manager.loggerDict
-        uvicorn_root = logging.getLogger('uvicorn')
-        uvicorn_error = logging.getLogger('uvicorn.error')
-        uvicorn_access = logging.getLogger('uvicorn.access')
+        # uvicorn_root = logging.getLogger('uvicorn')
+        # uvicorn_error = logging.getLogger('uvicorn.error')
+        # uvicorn_access = logging.getLogger('uvicorn.access')
         # logger_arr = [uvicorn_root, uvicorn_error, uvicorn_access]
         logger_arr = ['uvicorn', 'uvicorn.error', 'uvicorn.access', 'fastapi']
         for name in logger_arr:
@@ -122,7 +126,7 @@ class FastApiLogFactory:
             logging.getLogger(name).setLevel(logging.DEBUG)
             # logging.getLogger('logger').disabled = True
             console_handler = logging.StreamHandler(self.console_log_output)
-            requestFilters = FastRequestIdFilter(server= self.server, service= self.service)
+            requestFilters = FastRequestIdFilter(server= self.server, service= self.service, context= request_id_context)
             # logger.addFilter(requestFilters)
             logging.getLogger(name).addFilter(requestFilters)
             # Create and set formatter, add console handler to logger

@@ -64,8 +64,13 @@ class FlaskLogFactory:
         logger.setLevel(logging.DEBUG)
         # https://stackoverflow.com/questions/30945460/formatting-flask-app-logs-in-json 
         logging.getLogger('gunicorn').propagate = False
+        logging.getLogger('werkzeug').propagate = True
+        logging.getLogger('gunicorn.error').propagate = False
+        logging.getLogger("gunicorn.access").propagate = False
+        logging.getLogger("gunicorn.access").setLevel(logging.ERROR)
+        logging.getLogger('werkzeug').setLevel(logging.ERROR)
         # logging.getLogger('werkzeug').disabled = True
-        self.__alter_werkzeug_logger()
+        # self.__alter_werkzeug_logger()
         # Create console handler
         if (self.console_log_output == "stdout"):
             self.console_log_output = sys.stdout
