@@ -43,7 +43,13 @@ class FlaskLogFactory:
                     # Bugfix - If the content type is application/json in GET json decode exception occurs.
                 except Exception as e:
                     request_body = {}
-                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=request_body))
+
+                # Enhancement - If the request body is too big, print only its keys
+                to_print_body = request_body
+                if str(request_body).__len__() > 1000:
+                    to_print_body = request_body_in.keys()
+                
+                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.remote_addr, API_PATH=request.path, BODY=to_print_body))
 
             @server.after_request
             def __motifer_after_request__(response):
