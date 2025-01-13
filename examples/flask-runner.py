@@ -17,12 +17,19 @@ def calculate():
     # time.sleep(2)
     return 10
 
-@app.route('/')
+@app.route('/health', methods=["GET", "POST"])
 def health():
     logger.debug("In the root route of sample app.")
+    req_body = request.get_json() if(request is not None and request.is_json == True) else {}
+    req_args = dict(request.args) if request.args is not None else {}
+    logger.info(f"Body: {req_body}")
+    logger.info(f"Args: {req_args}")
     calculate()
     logger.warning("Some warnings in the code.")
+    logger.suAlert("Some SU Alert message")
+    logger.suAlert({"tenant_id": "123", "alertType": "Test Alert Type", "message": "SU Alert Message"})
     return {"status": "okay"}
+
 
 if __name__ == '__main__':
     app.run()
