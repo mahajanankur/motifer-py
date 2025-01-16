@@ -19,6 +19,8 @@ def main():
     logger.warning("Warning message")
     logger.error("Error message")
     logger.critical("Critical message")
+    logger.suAlert({"tenant_id": "123", "alertType": "Test Alert Type", "message": "SU Alert Message"})
+    logger.suAlert("Message passed without dictionary")
     try:
         raise Exception("This is some exception")
     except Exception as e:
