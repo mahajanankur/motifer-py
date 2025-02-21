@@ -45,7 +45,7 @@ class FastApiLogFactory:
                 self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, BODY={}), extra={'log_type': 'request'})
                 response_time = int((time.time() - start_time) * 1000)
                 response = await call_next(request)
-                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.headers["content-length"], RESPONSE_TIME=response_time, USER_AGENT=request.headers.get("user-agent")), extra={'log_type': 'response'})
+                self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{RESPONSE_STATUS}] [{CONTENT_LENGTH}] [{RESPONSE_TIME}] [{USER_AGENT}]".format(REQUEST_METHOD=request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, RESPONSE_STATUS=response.status_code, CONTENT_LENGTH=response.headers.get("content-length"), RESPONSE_TIME=response_time, USER_AGENT=request.headers.get("user-agent")), extra={'log_type': 'response'})
                 return response
 
     # Get logger factory.
