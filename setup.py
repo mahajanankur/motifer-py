@@ -11,7 +11,7 @@ requires = [
 setup(
     include_package_data=True,
     name="motifer",
-    version='1.1.2',
+    version='1.1.3',
     description='Generic logs pattern builder for Python and Flask, built on top of logging module.',
     long_description_content_type='text/markdown',
     long_description=open('README.md').read(),
