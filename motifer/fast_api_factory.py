@@ -39,7 +39,7 @@ class FastApiLogFactory:
             # Add request ID filter to the logger
             @server.middleware("http")
             async def __motifer_middleware__(request: Request, call_next):
-                request_id_context.set(str(uuid.uuid4()))
+                request_id_context.set(request.headers.get("request_id", str(uuid.uuid4())))
                 start_time = time.time()
                 # request.state.request_id = str(uuid.uuid4())
                 self.logger.info("[{REQUEST_METHOD}] [{REQUEST_IP}] [{API_PATH}] [{BODY}]".format(REQUEST_METHOD = request.method, REQUEST_IP=request.client.host, API_PATH=request.url.path, BODY={}), extra={'log_type': 'request'})
