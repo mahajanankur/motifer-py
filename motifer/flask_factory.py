@@ -36,9 +36,9 @@ class FlaskLogFactory:
             @server.before_request
             def __motifer_before_request__():
                 g.start_time = time.time()
-                g.request_id = str(uuid.uuid4())
+                g.request_id = request.headers.get("request_id", str(uuid.uuid4()))
                 request_body_in, request_args = {}, {}
-                try: 
+                try:
                     request_body_in = request.get_json() if(request is not None and request.is_json == True) else {}
                     # Added the Args in the request before_request for the args to show
                     request_args = dict(request.args) if request.args is not None else {}
